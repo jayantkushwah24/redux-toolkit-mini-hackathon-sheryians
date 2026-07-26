@@ -1,44 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import Todos from "./components/Todos/Todos";
 import AddTodo from "./components/AddTodo/AddTodo";
+import todoReducer from "./reducers/TodoReducers";
 
 const App = () => {
-  let [todos, setTodos] = useState([]);
+  let [todos, dispatch] = useReducer(todoReducer, []);
 
   function addTodo(todoText, id = 0) {
     if (id) {
-      let newTodos = todos.map((todo) =>
-        todo.id === id ? { ...todo, text: todoText } : todo,
-      );
-      setTodos(newTodos);
+      dispatch({ type: "edit_todo", payload: { id, todoText } });
     } else {
-      let newTodos = [
-        ...todos,
-        {
-          id: crypto.randomUUID(),
-          text: todoText,
-          isFinished: false,
-        },
-      ];
-      setTodos(newTodos);
+      dispatch({ type: "add_todo", payload: { todoText } });
     }
   }
 
   function deleteTodo(id) {
-    let newTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(newTodos);
+    dispatch({ type: "delete_todo", payload: { id } });
   }
 
   function changeIsFinished(id) {
-    let newTodos = todos.map((todo) =>
-      todo.id === id ? { ...todo, isFinished: !todo.isFinished } : todo,
-    );
-    setTodos(newTodos);
+    dispatch({ type: "finish_todo", payload: { id } });
   }
-
-  useEffect(() => {
-    console.log(todos);
-  }, [todos]);
 
   return (
     <div>

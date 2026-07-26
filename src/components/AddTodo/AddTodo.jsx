@@ -8,10 +8,19 @@ const AddTodo = ({ addTodo }) => {
       <input
         type="text"
         value={todoText}
-        onChange={(e) => setTodoText(e.target.value)}
+        onChange={(e) => {
+          setTodoText(e.target.value);
+        }}
         placeholder="add your next todo"
       />
-      <button onClick={() => addTodo(todoText)}>Submit</button>
+      <button
+        onClick={() => {
+          addTodo(todoText);
+          setTodoText("");
+        }}
+      >
+        Submit
+      </button>
     </div>
   );
 };
