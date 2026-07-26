@@ -1,7 +1,9 @@
 import React from "react";
 import Todo from "../Todo/Todo";
+import { useSelector } from "react-redux";
 
-const Todos = ({ todos, deleteTodoFn, changeIsFinished, addTodo }) => {
+const Todos = () => {
+  const todos = useSelector((state) => state.todos);
   return (
     <div>
       {todos &&
@@ -11,9 +13,6 @@ const Todos = ({ todos, deleteTodoFn, changeIsFinished, addTodo }) => {
             id={todo.id}
             text={todo.text}
             isFinished={todo.isFinished}
-            deleteTodoFn={deleteTodoFn}
-            changeIsFinished={changeIsFinished}
-            addTodo={addTodo}
           />
         ))}
     </div>

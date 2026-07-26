@@ -1,15 +1,24 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 
-const Todo = ({
-  id,
-  text,
-  isFinished,
-  deleteTodoFn,
-  changeIsFinished,
-  addTodo,
-}) => {
+const Todo = ({ id, text, isFinished }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [todoText, setTodoText] = useState(text);
+  const dispatch = useDispatch();
+
+  function editTodo(todoText, id = 0) {
+    if (id) {
+      dispatch({ type: "edit_todo", payload: { id, todoText } });
+    }
+  }
+
+  function changeIsFinished(id) {
+    dispatch({ type: "finish_todo", payload: { id } });
+  }
+
+  function deleteTodo(id) {
+    dispatch({ type: "delete_todo", payload: { id } });
+  }
 
   return (
     <div>
@@ -28,7 +37,7 @@ const Todo = ({
           />
           <button
             onClick={() => {
-              addTodo(todoText, id);
+              editTodo(todoText, id);
               setIsEditing(false);
             }}
           >
@@ -42,7 +51,7 @@ const Todo = ({
         </span>
       )}
 
-      <button onClick={() => deleteTodoFn(id)}>Delete</button>
+      <button onClick={() => deleteTodo(id)}>Delete</button>
     </div>
   );
 };
