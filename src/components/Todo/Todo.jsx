@@ -1,57 +1,71 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+// import { useDispatch } from "react-redux";
 
-const Todo = ({ id, text, isFinished }) => {
+const Todo = ({ id, text, isFinished, editTodo, deleteTodo, finishTodo }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [todoText, setTodoText] = useState(text);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  function editTodo(todoText, id = 0) {
+  function onEditTodo(todoText, id = 0) {
     if (id) {
-      dispatch({ type: "edit_todo", payload: { id, todoText } });
+      editTodo({ id, todoText });
+      // dispatch({ type: "edit_todo", payload: { id, todoText } });
     }
   }
 
   function changeIsFinished(id) {
-    dispatch({ type: "finish_todo", payload: { id } });
+    finishTodo({ id });
+    // dispatch({ type: "finish_todo", payload: { id } });
   }
 
-  function deleteTodo(id) {
-    dispatch({ type: "delete_todo", payload: { id } });
+  function onDeleteTodo(id) {
+    deleteTodo({ id });
+    // dispatch({ type: "delete_todo", payload: { id } });
   }
 
   return (
-    <div>
+    <div className="todo-item">
       <input
+        className="todo-checkbox"
         type="checkbox"
         checked={isFinished}
         onChange={() => changeIsFinished(id)}
       />
 
       {isEditing ? (
-        <span>
+        <div className="todo-content">
           <input
+            className="todo-input"
             type="text"
             value={todoText}
             onChange={(e) => setTodoText(e.target.value)}
           />
+
           <button
+            className="save-btn"
             onClick={() => {
-              editTodo(todoText, id);
+              onEditTodo(todoText, id);
               setIsEditing(false);
             }}
           >
             Save
           </button>
-        </span>
+        </div>
       ) : (
-        <span>
-          <span>{text}</span>
-          <button onClick={() => setIsEditing(true)}>Edit</button>
-        </span>
+        <div className="todo-content">
+          <span className={isFinished ? "todo-text finished" : "todo-text"}>
+            {text}
+          </span>
+
+          <button className="edit-btn" onClick={() => setIsEditing(true)}>
+            Edit
+          </button>
+        </div>
       )}
 
-      <button onClick={() => deleteTodo(id)}>Delete</button>
+      <button className="delete-btn" onClick={() => onDeleteTodo(id)}>
+        Delete
+      </button>
     </div>
   );
 };

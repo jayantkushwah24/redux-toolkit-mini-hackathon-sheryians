@@ -78,14 +78,481 @@
 
 # how to integrate redux into the project?
 
-## how to install redux into our project? 
+## how to install redux into our project?
+
 - just run these commands into the terminal below:-
 - npm install redux
 - npm install react-redux
+- npm install @reduxjs/toolkit react-redux
 
 ## how we can provide the store?
+
 - redux provide the <Provide store={store}></Provide> component, so we have to wrap the component and in that component we can access the store.
 
 ## how we can access the store into the component?
-- redux provide some hooks to access the store eg. (1) useDispatch (2) useSelector
 
+- redux provide some hooks to access the store eg. (1) useDispatch (2) useSelector
+- (1) **useDispatch()**: provides functional components with access to the dispatch function from the Redux store, allowing them to trigger state updates by sending actions
+- (2) **useSelector()**: allows functional components to extract data from the Redux store. inside useSelector pass a selector function that receives the entire store state and returns the specific slice of data your component needs.. const todos = useSelector(state => state.todos);
+
+# Redux Toolkit
+
+## what is redux toolkit?
+
+- Redux Toolkit (RTK) is the official, recommended way to write Redux logic.
+- It is built on top of Redux and removes most of the boilerplate code.
+- It provides utilities for creating stores, reducers, actions, and handling immutable updates.
+- Redux Toolkit uses Immer internally, so we can write "mutating" logic safely inside reducers.
+
+---
+
+## why redux toolkit over redux?
+
+- Traditional Redux requires writing lots of boilerplate code.
+- We have to manually create action types, action creators, reducers, and configure the store.
+- Redux Toolkit simplifies all of this by providing helper functions.
+
+Traditional Redux
+
+```js
+const ADD_TODO = "ADD_TODO";
+
+function addTodo(text) {
+  return {
+    type: ADD_TODO,
+    payload: text,
+  };
+}
+
+function reducer(state = [], action) {
+  switch (action.type) {
+    case ADD_TODO:
+      return [...state, action.payload];
+    default:
+      return state;
+  }
+}
+```
+
+Redux Toolkit
+
+```js
+const todoSlice = createSlice({
+  name: "todos",
+  initialState: [],
+  reducers: {
+    addTodo(state, action) {
+      state.push(action.payload);
+    },
+  },
+});
+```
+
+Much shorter and easier to maintain.
+
+---
+
+## how to install redux toolkit?
+
+```bash
+npm install @reduxjs/toolkit react-redux
+```
+
+---
+
+## createSlice()
+
+- createSlice is the most important function in Redux Toolkit.
+- It automatically creates:
+  - reducer
+  - action creators
+  - action types
+- We only need to write reducer functions.
+
+Syntax
+
+```js
+const slice = createSlice({
+  name: "todos",
+  initialState,
+  reducers: {},
+});
+```
+
+Parameters
+
+### (1) name
+
+- unique name of the slice.
+- used while generating action types.
+
+Example
+
+```js
+name: "todos";
+```
+
+Generated action type
+
+```
+todos/addTodo
+todos/deleteTodo
+```
+
+---
+
+### (2) initialState
+
+- the initial value of this slice.
+
+Example
+
+```js
+const initialState = {
+  todoList: [],
+};
+```
+
+---
+
+### (3) reducers
+
+- object containing all reducer functions.
+- every reducer receives
+  - state
+  - action
+
+Example
+
+```js
+reducers: {
+    addTodo(state, action) {},
+    deleteTodo(state, action) {},
+    editTodo(state, action) {}
+}
+```
+
+---
+
+## createSlice automatically creates actions
+
+Suppose we have
+
+```js
+reducers: {
+    addTodo(state, action) {},
+    deleteTodo(state, action) {}
+}
+```
+
+Then Redux Toolkit automatically creates
+
+```js
+addTodo();
+deleteTodo();
+```
+
+We can export them like
+
+```js
+export const { addTodo, deleteTodo } = todoSlice.actions;
+```
+
+---
+
+## exporting reducer
+
+At the end of every slice
+
+```js
+export default todoSlice.reducer;
+```
+
+Later it is added into the Redux store.
+
+---
+
+## configureStore()
+
+configureStore replaces createStore from Redux.
+
+Instead of
+
+```js
+createStore(reducer);
+```
+
+we use
+
+```js
+const store = configureStore({
+  reducer: {
+    todos: todoReducer,
+    users: userReducer,
+  },
+});
+```
+
+Benefits
+
+- combines reducers automatically
+- enables Redux DevTools automatically
+- includes useful middleware by default
+- simpler configuration
+
+---
+
+## creating store
+
+```js
+import { configureStore } from "@reduxjs/toolkit";
+import todoReducer from "./todoSlice";
+
+export const store = configureStore({
+  reducer: {
+    todos: todoReducer,
+  },
+});
+```
+
+---
+
+## Provider
+
+Provider makes the Redux store available to every component.
+
+```jsx
+import { Provider } from "react-redux";
+import { store } from "./store";
+
+<Provider store={store}>
+  <App />
+</Provider>;
+```
+
+Usually we wrap our App component in main.jsx or index.js.
+
+---
+
+## useDispatch()
+
+- returns the dispatch function.
+- used to dispatch actions.
+
+```js
+const dispatch = useDispatch();
+
+dispatch(
+  addTodo({
+    todoText: "Learn Redux Toolkit",
+  }),
+);
+```
+
+---
+
+## useSelector()
+
+- reads data from the Redux store.
+- receives the complete store state.
+- returns only the required data.
+
+```js
+const todos = useSelector((state) => state.todos.todoList);
+```
+
+---
+
+## action.payload
+
+When we dispatch
+
+```js
+dispatch(
+  addTodo({
+    todoText: "Learn Redux",
+  }),
+);
+```
+
+Inside reducer
+
+```js
+addTodo(state, action) {
+    console.log(action.payload);
+}
+```
+
+Output
+
+```js
+{
+  todoText: "Learn Redux";
+}
+```
+
+---
+
+## Immer
+
+Redux state should never be mutated directly.
+
+Traditional Redux
+
+```js
+return {
+  ...state,
+  count: state.count + 1,
+};
+```
+
+Redux Toolkit uses Immer internally.
+
+So this is completely valid
+
+```js
+state.count++;
+```
+
+Immer converts this into an immutable update behind the scenes.
+
+---
+
+## example addTodo reducer
+
+```js
+addTodo(state, action) {
+    state.todoList.push({
+        id: crypto.randomUUID(),
+        text: action.payload.todoText,
+        isFinished: false
+    });
+}
+```
+
+Even though push() mutates the array, Immer makes it immutable internally.
+
+---
+
+## folder structure
+
+```
+src
+|
+|-- app
+|     store.js
+|
+|-- features
+|      todo
+|          todoSlice.js
+|
+|-- components
+|      AddTodo.jsx
+|      Todo.jsx
+|      TodoList.jsx
+|
+|-- App.jsx
+```
+
+---
+
+## redux data flow
+
+```
+Component
+
+      ↓
+
+dispatch(action)
+
+      ↓
+
+Reducer (inside Slice)
+
+      ↓
+
+Store updates
+
+      ↓
+
+useSelector gets updated state
+
+      ↓
+
+Component re-renders
+```
+
+---
+
+## best practices
+
+- keep only global state inside Redux.
+- keep local UI state inside useState().
+- create one slice per feature.
+- keep reducers pure.
+- avoid putting derived data in the store.
+- use useSelector only for the data a component actually needs.
+- use meaningful action names like addTodo, deleteTodo, updateUser.
+
+---
+
+## when should we use Redux?
+
+Use Redux when
+
+- multiple components need the same data.
+- state is shared across different pages.
+- application has authentication state.
+- shopping cart.
+- theme management.
+- notifications.
+- user profile.
+- complex dashboards.
+- caching API data.
+
+Don't use Redux when
+
+- state belongs to only one component.
+- state is temporary (modal open/close, input fields, dropdowns).
+- simple parent-child communication is enough.
+
+For local component state, prefer useState or useReducer.
+
+---
+
+# Summary
+
+```
+Redux Toolkit
+    ↓
+createSlice()
+    ↓
+creates
+    ├── reducer
+    ├── actions
+    └── action types
+
+configureStore()
+    ↓
+creates Redux store
+
+Provider
+    ↓
+makes store available
+
+useDispatch()
+    ↓
+dispatch actions
+
+useSelector()
+    ↓
+read state
+
+Reducer
+    ↓
+updates state
+
+Store changes
+    ↓
+React re-renders UI
+```

@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+// import { useDispatch } from "react-redux";
 
-const AddTodo = () => {
+const AddTodo = ({ addTodo }) => {
   const [todoText, setTodoText] = useState("");
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  function addTodo(todoText, id = 0) {
-    dispatch({ type: "add_todo", payload: { todoText } });
+  function onAddTodo(todoText) {
+    addTodo({ todoText });
+    // dispatch({ type: "add_todo", payload: { todoText } });
   }
 
   return (
-    <div>
+    <div className="add-todo">
       <input
         type="text"
         value={todoText}
@@ -21,7 +22,7 @@ const AddTodo = () => {
       />
       <button
         onClick={() => {
-          addTodo(todoText);
+          onAddTodo(todoText);
           setTodoText("");
         }}
       >
